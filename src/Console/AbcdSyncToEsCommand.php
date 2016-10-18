@@ -103,7 +103,7 @@ class AbcdSyncToEsCommand  extends Command{
 
                     $this->es->execute( $path , $filename, function($row) use ($output , &$restore, $climate, &$i) { 
 
-                            
+                            if(!$row) return;
                             $data = $row->toArray();
                              
                            

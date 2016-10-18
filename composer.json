@@ -2,6 +2,8 @@
     "name":"modalnetworks/esabcd",
     "version": "0.0.1",
     "description": "Package for abcd",
+    "type":"library",
+    "license":"MIT",
     "require": {
         "elasticsearch/elasticsearch": "^2.2",
         "symfony/var-dumper": "^3.1",
