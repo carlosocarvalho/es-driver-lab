@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Discovery Modalnetworks :: Home</title>
+
+    <script src="/assets/jquery.js"></script>
+    <script src="/assets/what-input.js"></script>
+    <script src="/assets/foundation.min.js"></script>
+    <link rel="stylesheet" href="/assets/foundation.min.css"/>
+    <link rel="stylesheet" href="/assets/main.css">
+
+    
+</head>
+<body>
+   
+   <div class="row">
+     <div class="large-12 columns">
+        <h3>Lista de Pesquisa</h3>
+
+        
+
+     <hr>    
+     </div>
+     <div class="columns large-10">
+       <strong>Pesquisa <span class="label success">{{q}}</span></strong>
+       <strong>TOTAL DE REGISTRORS ({{ data.meta.cursor.count }})</strong>
+        
+     </div>   
+     <div class="columns large-2">
+     
+          <a href="/" class="button">NOVA PESQUISA</a>
+        
+     </div>
+      
+     
+  </div>
+  <div class="row">
+     <div class="large-12 columns">
+      <hr style="margin-top:5px;">
+       {% for row in data.data %}
+       <blockquote>
+       <h4>{{ row.title | raw }}</h4>
+        
+  <cite>{{  row.author | join(', ') }} </cite>
+  <span class="secondary label"></span>
+
+</blockquote> 
+        {% endfor %}
+   </div>
+   </div>
+
+   <div class="row">
+        <div class="columns large-12">
+           
+        </div>
+   </div>
+
+   <div class="row">
+       <div class="columns large-12">
+          <ul class="pagination" role="navigation" aria-label="Pagination">
+            {% for key ,page in data.paginator.getPages() %}
+            <li><a href="{{data.currentUri}}&cursor={{ key + 1 }}" aria-label="Next page">{{ key + 1}} </span></a></li>   
+            {% endfor %}
+          </ul>
+       </div>
+   </div>
+
+
+</body>
+</html>

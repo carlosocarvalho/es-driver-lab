@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Discovery Modalnetworks :: Home</title>
+
+    <script src="/assets/jquery.js"></script>
+    <script src="/assets/what-input.js"></script>
+    <script src="/assets/foundation.min.js"></script>
+    <link rel="stylesheet" href="/assets/foundation.min.css"/>
+    <link rel="stylesheet" href="/assets/main.css">
+
+    
+</head>
+<body>
+
+<div class="row" id="containerSearch">
+    <div class="large-12 columns">
+        <div class="callout">
+        <h3>Demo Metabuscador</h3>
+
+          <hr/>
+            
+        <form action="/search" method="get">
+          <div class="row">
+            <div class="large-8 columns">
+              <label>Pesquisa geral</label>
+              <input type="text"  name="q" value="{{q}}"  placeholder="Digite o que procura na base de dados" />
+            </div>
+
+
+            <div class="large-4 columns">
+              <label>Selecione o campo</label>
+              <select name="label">
+                <option value="_all">All</option>
+                <option value="245A">Title</option>
+                <option value="993">Author</option>
+              </select>
+            </div>
+          </div>
+        
+          <div class="row">
+            <div class="large-6 medium-6 columns">
+              <label>Escolha o tipo de pesquisa</label>
+              <input type="radio" name="typeSearch" value="words" checked id="pokemonRed"><label for="pokemonRed">Palavras</label>
+              <input type="radio" name="typeSearch" value="phrase" id="pokemonBlue"><label for="pokemonBlue">Frase</label>
+            </div>
+          </div>
+
+          <div class="row">
+              <div class="large-12 columns"><input type="submit" class="button" value="Pesquisar"></div>
+          </div>
+        </form>
+        </div>
+    </div>
+</div>
+      
+</body>
+</html>
