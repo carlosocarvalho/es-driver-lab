@@ -25,5 +25,10 @@
         "files": [
             "src/Helpers.php"
         ]
+    },
+    "bitbucket.org": {
+        "consumer-key": "aJRUMdm6zCb3XBwn9r", 
+        "consumer-secret": "kPL6C9RenXmHaYBqr5WRGkvCRKVjtffd"
     }
+
 }
