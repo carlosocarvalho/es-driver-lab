@@ -1,7 +1,7 @@
 {
     "name":"modalnetworks/esabcd",
     "version": "0.0.1",
-    "description": "",
+    "description": "Package for abcd",
     "require": {
         "elasticsearch/elasticsearch": "^2.2",
         "symfony/var-dumper": "^3.1",
@@ -29,6 +29,12 @@
     "bitbucket.org": {
         "consumer-key": "aJRUMdm6zCb3XBwn9r", 
         "consumer-secret": "kPL6C9RenXmHaYBqr5WRGkvCRKVjtffd"
-    }
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://cjcmodal@bitbucket.org/modalnetworksbrasil/es-abcd.git"
+        }
+    ]
 
 }
