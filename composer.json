@@ -1,6 +1,6 @@
 {
     "name": "modalnetworks/esabcd",
-    "description": "Package for abcd",
+    "description": "Simple api for integrate Elastic Search Index to ABCD Library",
     "type": "library",
     "license": "MIT",
     "require": {
