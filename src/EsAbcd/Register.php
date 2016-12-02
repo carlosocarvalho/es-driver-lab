@@ -10,7 +10,7 @@ class Register{
 
       protected $column_separator = '||';
       
-      public function __construct( $data ){
+      public function __construct( $data  ){
              $this->data = $data;
       }
 

@@ -20,6 +20,8 @@ class ElasticRestore {
                          ->setLogger($logger)
                          ->build();
              $this->esIndex = new \Modalnetworks\EsModal\EsAbcd\Index( $this->es, \Modalnetworks\EsModal\Config::get('elasticmapping'));
+
+
              $this->up =  new \Modalnetworks\EsModal\EsAbcd\UpFile();
 
        }
@@ -37,7 +39,7 @@ class ElasticRestore {
        public function save($data){
             try {
 
-                  $data['client'] = [ 'ignore' => [400, 404] ];
+                  $data['client'] = [ 'ignore' => [404] ];
                   return  $this->es->index($data);        
             } catch (\Exceptions $exception) {
                   

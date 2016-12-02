@@ -11,8 +11,9 @@ class Search{
     protected $es;
 
     public function __construct($config ){
-             $this->es = Client::create()
 
+
+             $this->es = Client::create()
                          ->setHosts($config->toArray())
                          ->build();
      }
@@ -26,7 +27,7 @@ class Search{
          $response = call_user_func_array([$this->es, $name], $args );
          try{
              return  $response;
-         }catch(Elasticsearch\Common\Exceptions $e){
+         }catch(\Elasticsearch\Common\Exceptions $e){
             
          }
         

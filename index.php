@@ -41,7 +41,7 @@ $app->get('search',function(Request $request)use($app){
     
        
         $search = new DiscoveryRepository;
-        $search->setOrderBy('245A','asc');
+        //$search->setOrderBy('245A','asc');
         //$search->setOrderBy('777','desc');
          
 
@@ -63,10 +63,10 @@ $app->get('search',function(Request $request)use($app){
                     ->hits();
      
 
-     //dump($search->lastParams());
+     dump($search->lastParams());
     $patternUri = preg_replace('#(\&cursor=[0-9]{1,})+#','',$request->getRequestUri());
    $data['paginator']->setUrlPattern($patternUri);
-    dump($data['paginator']);  
+    //dump($data['paginator']);  
     
 
     $data['currentUri'] = $patternUri;

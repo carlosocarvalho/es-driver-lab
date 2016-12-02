@@ -48,7 +48,7 @@ class Index{
              }
                  
              if( ! $hasIndex OR $forceDelete ){
-                   dump('create index '. $key);        
+                   dump('create index '. $key);
                    $this->es->indices()->create(['index'=> $key, 'body'=>  $config['elasticsearchSettingIndex']]);
                 }
          }

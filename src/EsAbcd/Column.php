@@ -3,6 +3,7 @@
 
 namespace Modalnetworks\EsModal\EsAbcd;
 
+use Modalnetworks\EsModal\Config;
 
 
 class Column{
@@ -15,9 +16,13 @@ class Column{
     protected $column_separator = '|';
 
     protected $data;
+
+    protected $columns = [];
    
     public function __construct( $data ) {
-         $this->getColumnsFromLine($data);
+        $this->getColumnsFromLine($data);
+        $mapping = Config::get('elasticmapping');
+        $this->columns = $mapping['fields_in'];
     }
     
     public function data(){
@@ -34,7 +39,7 @@ class Column{
                         $ns = explode('|',$value);
                         $key = trim($ns['0']);
                         $ivalue = trim($ns['1']);
-                        if(empty($key)) continue;
+                        if(empty($key) OR ($this->columns && !in_array($key, $this->columns))) continue;
                         if(in_array($key, $this->fieldsTimeStamps))
                           $ivalue = $this->replaceValidDate($ivalue);
                           
@@ -42,7 +47,10 @@ class Column{
 
                         if(!in_array($key, $this->fieldsNotApplyIndex ,true)){
                             $arrayDataOnSave = array_map('trim', explode(';', $ivalue));
-                            $data[$key] = $arrayDataOnSave;
+                            $data[$key] = $this->clearArrayData($arrayDataOnSave); /*array_filter($arrayDataOnSave, function($row){
+                                   $row = trim($row);
+                                   if(!empty($row)) return $row;
+                            });*/
                         }
 
                     }
@@ -54,36 +62,28 @@ class Column{
     }
 
 
-    private function clearArrayData(& $data){
+    private function clearArrayData($data){
 
-       return $data;
+
         if(! $data OR !is_array($data)) return $data;
+        $new_data = [];
         foreach($data as $key => $value){
             $value = trim($value);
-            if(mb_strlen($value) == 0)
-                unset($data[$key]);
-        }
+            if(!empty($value))
+                   $new_data[] = $value;
 
-        return $data;
+
+        }
+        return $new_data;
     }
 
 
-   private function replaceValidDate($date){
-      if(empty($date)) return "";
-       $date = str_replace('.', '0', $date);
-        $explode_array = explode('-', $date);
-        $year = (int) $explode_array['0'];
-        $month = (int) (isset($explode_array['1']) ? $explode_array['1'] : 1);
-        $day =  (int) (isset($explode_array['2']) ? $explode_array['2'] : 1);
-        if($month > 12)
-             $month = 1;
-        if($day > 31)
-            $day = 1;
-       
-       $date =  $year.'-'.$month.'-'.$day;
-       $d = new \DateTime($date);
-
-      return $d->format('Y-m-d');  
+   private function replaceValidDate($date , $key = null){
+       $date = preg_replace('/[^0-9]+/i','', $date);
+       if(preg_match('#\d#', $date)){
+           return substr($date,0, 8);
+       }
+       return str_pad(rand(2,5),8,'0', STR_PAD_LEFT);
 
     }
 }

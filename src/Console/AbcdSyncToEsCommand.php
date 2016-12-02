@@ -105,15 +105,16 @@ class AbcdSyncToEsCommand  extends Command{
 
                             if(!$row) return;
                             $data = $row->toArray();
-                             
-                           
-                           if( $this->validateArgumentsFor($data)  &&  $restore->save($data)) {
-                                      $climate->inline('.');
+
+                           if( $this->validateArgumentsFor($data)  &&  $id = $restore->save($data)) {
+
+                               $output->writeln($data['index'].'/'. $data['type'].'/'.$data['body']['777'] );
+
                                        $i+=1;
                            }
                             
                             
-                            usleep(100000);
+                            usleep(30000);
                         });
 
 

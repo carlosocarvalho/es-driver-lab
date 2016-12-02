@@ -40,7 +40,7 @@ class UpFile {
       while(!feof( $handler)){
            $row = fgets($handler);
            $row = utf8_encode($row);
-           $data = (new \Modalnetworks\EsModal\EsAbcd\Register($row))->build(); 
+           $data = (new \Modalnetworks\EsModal\EsAbcd\Register($row, $i))->build();
            if( is_callable ($callback) )
                  call_user_func($callback,$data, $i);
 
