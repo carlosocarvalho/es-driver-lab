@@ -8,9 +8,7 @@ use Modalnetworks\EsModal\Config;
 
 class Column{
 
-    protected $fieldsNotApplyIndex = [
-        'index','type','999','987','777','245A','245B','247A','247B','260C','260D','260M','260D','260S','263A','263M','263D','773T','21','13','thumbnail'
-    ];
+    protected $fieldsNotApplyIndex = [];
     protected $fieldsTimeStamps = ['777'];
     
     protected $column_separator = '|';
@@ -20,9 +18,18 @@ class Column{
     protected $columns = [];
    
     public function __construct( $data ) {
-        $this->getColumnsFromLine($data);
+          
         $mapping = Config::get('elasticmapping');
-        $this->columns = $mapping['fields_in'];
+      
+        $this->fieldsNotApplyIndex = $mapping['fields_string'];
+
+         $this->getColumnsFromLine($data);
+        
+          $this->columns = $mapping['fields_in'];
+        
+
+
+        
     }
     
     public function data(){
@@ -42,9 +49,7 @@ class Column{
                         if(empty($key) OR ($this->columns && !in_array($key, $this->columns))) continue;
                         if(in_array($key, $this->fieldsTimeStamps))
                           $ivalue = $this->replaceValidDate($ivalue);
-                          
                           $data[$key] =  $ivalue ;//mb_convert_encoding(utf$ivalue,'UTF-8');
-
                         if(!in_array($key, $this->fieldsNotApplyIndex ,true)){
                             $arrayDataOnSave = array_map('trim', explode(';', $ivalue));
                             $data[$key] = $this->clearArrayData($arrayDataOnSave); /*array_filter($arrayDataOnSave, function($row){

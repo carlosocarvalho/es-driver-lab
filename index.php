@@ -65,7 +65,7 @@ $app->get('search',function(Request $request)use($app){
 
      dump($search->lastParams());
     $patternUri = preg_replace('#(\&cursor=[0-9]{1,})+#','',$request->getRequestUri());
-   $data['paginator']->setUrlPattern($patternUri);
+    //$data['paginator']->setUrlPattern($patternUri);
     //dump($data['paginator']);  
     
 

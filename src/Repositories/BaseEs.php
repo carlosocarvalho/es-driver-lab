@@ -50,6 +50,9 @@ class BaseEs extends \ArrayIterator{
 
     protected $filters = [];
 
+
+    protected $highlight = [];
+
     public function __construct(){
 
         $mapping = \Modalnetworks\EsModal\Config::get('elasticmapping');
@@ -74,7 +77,11 @@ class BaseEs extends \ArrayIterator{
         if(! $this->transformer OR ( !is_callable($this->transformer) && !is_object($this->transformer) ) ) return function($row){ return $row;};
         return $this->transformer;
     }
-
+    
+    public function setHighlight($fields = []){
+             $this->highlight = $fields;
+             return $this;
+    }
     public function setFields($fields = []){
         $this->fieldsBySearch = $fields;
         return ($this);
@@ -175,7 +182,6 @@ class BaseEs extends \ArrayIterator{
             'fields'   => $this->_getFields(),
             'operator' =>'AND'
         ];
-
         if($this->searchByWord)
             $query = $this->esBuilder->build('ByAll', $params);
         if(!$this->searchByWord)
@@ -316,21 +322,33 @@ class BaseEs extends \ArrayIterator{
      * @return $this
      */
     private function _builderHighLight(){
+
+        if( ! $this->highlight) return $this;
+
         $highlight = [
             'highlight'=>[
-                'pre_tags' =>['<strong class="es-high">'],
-                'post_tags' =>['</strong>'],
-                "number_of_fragments" => 2,
-                "fragment_size" => 150,
+               'pre_tags' =>['<span class="es-hight">'],
+               'post_tags' =>['</span>'],
+                //"number_of_fragments" => 2,
+                "fragment_size" => 10000,
                 'tag_schema' =>  'styled',
-                'fields' => [
-                    '_all' => ['pre_tags'=>['<strong>'],'post_tags'=>['</strong>']]
-                ]
+                'fields' => $this->_builderFieldsHighLight($this->highlight)
             ]
         ];
         if(isset($this->query_dsl['body']))
             $this->query_dsl['body'] =  array_merge( $this->query_dsl['body'], $highlight) ;
         return $this;
+    }
+
+
+    function _builderFieldsHighLight($fields){
+        $data =  [];
+        foreach($fields as $field){
+              $data["$field"]["matched_fields"] = [ $field,"{$field}.folded"];
+              $data["$field.folded"]["matched_fields"] = [ $field,"{$field}.folded"];
+        }
+
+        return $data;
     }
 
     /**

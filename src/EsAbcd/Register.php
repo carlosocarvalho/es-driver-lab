@@ -33,7 +33,10 @@ class Register{
                         'type'=>strtolower(trim($type)),
                         'body'=> $register
                         ]);
+
+
                 }
+               
 
             }
             return [];

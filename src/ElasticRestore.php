@@ -50,6 +50,23 @@ class ElasticRestore {
           
        }
 
+    public function bulk($data){
+        try {
+
+            $data['client'] = [ 'ignore' => [404] ];
+            return  $this->es->bulk($data);
+        } catch (\Exceptions $exception) {
+
+
+            dump($exception);
+
+        }
+
+    }
+
+
+
+
        public function setLogger($logger){
             $this->es->setLogger($logger);
        }

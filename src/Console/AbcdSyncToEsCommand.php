@@ -99,22 +99,46 @@ class AbcdSyncToEsCommand  extends Command{
           
           $this->logger->addNotice('Stared up ' . $filename);
          
-          if( ! $input->getOption('no-data')){ 
+          if( ! $input->getOption('no-data')){
 
-                    $this->es->execute( $path , $filename, function($row) use ($output , &$restore, $climate, &$i) { 
+              $params = ['body' => []];
+                    $this->es->execute( $path , $filename, function($row) use ($output , &$restore, $climate, &$i, & $params) {
 
                             if(!$row) return;
                             $data = $row->toArray();
 
-                           if( $this->validateArgumentsFor($data)  &&  $id = $restore->save($data)) {
+                           if( $this->validateArgumentsFor($data)  ) {
 
-                               $output->writeln($data['index'].'/'. $data['type'].'/'.$data['body']['777'] );
 
-                                       $i+=1;
+                               $params['body'][] = [
+                                   'index' => [
+                                       '_index' => $data['index'],
+                                       '_type' => $data['type'],
+
+                                   ]
+                               ];
+                               $params['body'][] = $data['body'];
+
+                               // Every 1000 documents stop and send the bulk request
+                               if ($i > 0 && $i % 1000 == 0) {
+                                    dump($i);
+                                   $responses = $restore->bulk($params);
+
+                                   // erase the old bulk request
+                                   $params = ['body' => []];
+
+                                   // unset the bulk response when you are done to save memory
+                                   unset($responses);
+
+                               }
+                               $i+=1;
+                               //$output->writeln($data['index'].'/'. $data['type'].'/'.$data['body']['777'] );
+
+
                            }
                             
                             
-                            usleep(30000);
+                            //usleep(30000);
                         });
 
 
@@ -123,6 +147,10 @@ class AbcdSyncToEsCommand  extends Command{
             }
 
             $this->logger->addNotice('Finish up ' . $filename);
+
+             if(count($params ['body']) > 0){
+                 $restore->bulk($params);
+             }
             $output->writeln('finish');  
            
                     
