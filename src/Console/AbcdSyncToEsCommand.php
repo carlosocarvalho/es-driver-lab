@@ -1,6 +1,6 @@
 <?php 
 
-
+//console
 namespace Modalnetworks\EsModal\Console;
 
 use Symfony\Component\Console\Command\Command;
@@ -14,6 +14,8 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+
+
 
 
 class AbcdSyncToEsCommand  extends Command{

@@ -4,7 +4,7 @@ namespace Modalnetworks\EsModal\EsAbcd;
 
 use Modalnetworks\EsModal\EsAbcd\Column;
 use \Everon\Component\Collection\Collection;
-
+//register
 class Register{
       protected $data;
 

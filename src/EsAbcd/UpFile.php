@@ -1,10 +1,7 @@
 <?php 
-
-
 namespace Modalnetworks\EsModal\EsAbcd;
 
 use Modalnetworks\EsModal\Exceptions\NotFound;
-
 use Modalnetworks\EsModal\Exceptions\EmptyValue;
 
 class UpFile {

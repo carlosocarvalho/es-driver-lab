@@ -2,8 +2,6 @@
 
 namespace Modalnetworks\EsModal\Repositories;
 
-//use \Everon\Component\Collection\Collection;
-
 use \League\Fractal\Resource\Collection;
 
 use \League\Fractal\Manager;
@@ -251,8 +249,10 @@ class BaseEs extends \ArrayIterator{
     private function _search(){
 
         $this->getParamsForSearch();
+
         $params = array_merge($this->getPaginatorParams(), $this->query_dsl);
         $data = $this->es->search( $params )['hits'];
+        
         $this->data = $this->transformData($data['hits'] , $data['total']);
         return $this;
     }

@@ -1,6 +1,7 @@
 <?php 
 
 namespace Modalnetworks\EsModal\EsAbcd;
+//paginator
 
 class Paginator
 {

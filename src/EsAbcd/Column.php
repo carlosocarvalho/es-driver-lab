@@ -2,9 +2,7 @@
 
 
 namespace Modalnetworks\EsModal\EsAbcd;
-
 use Modalnetworks\EsModal\Config;
-
 
 class Column{
 

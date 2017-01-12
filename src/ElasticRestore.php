@@ -1,6 +1,8 @@
 <?php 
 
 namespace Modalnetworks\EsModal;
+
+
 use Elasticsearch\ClientBuilder as Client;
 
 class ElasticRestore {
