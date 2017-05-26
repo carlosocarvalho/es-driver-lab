@@ -388,10 +388,10 @@ class BaseEs extends \ArrayIterator{
         ];
          $arrayFiltered = $filtered['filtered']['filter']['bool']['should']['and']['filters'];
         
-        if($terms)
+        if(count($terms) > 0)
             $arrayFiltered = array_merge($arrayFiltered, $terms);
 
-         if($multTerms)
+         if( count($multTerms) > 0)
             $arrayFiltered = array_merge($arrayFiltered, $multTerms);   
         
         $filtered['filtered']['filter']['bool']['should']['and']['filters'] = $arrayFiltered;        
@@ -410,6 +410,7 @@ class BaseEs extends \ArrayIterator{
             $terms[$label][] = $value;
 
         }
+        if(! $terms ) return [];
         return [['terms'=> $terms]];
     }
 
@@ -417,7 +418,8 @@ class BaseEs extends \ArrayIterator{
         $terms = [];
         foreach($this->filters as $row){
                 list($label, $value) = $row;
-            $terms[] = ['term'=>[$label=> mb_strtolower($value)]];
+             if( !empty($value))   
+              $terms[] = ['term'=>[$label=> mb_strtolower($value)]];
 
         }
         return $terms;
