@@ -51,6 +51,8 @@ class BaseEs extends \ArrayIterator{
 
     protected $highlight = [];
 
+    protected $filtersTerms = [];
+
     public function __construct(){
 
         $mapping = \Modalnetworks\EsModal\Config::get('elasticmapping');
@@ -230,6 +232,12 @@ class BaseEs extends \ArrayIterator{
         return ($this);
 
     }
+
+    public function setFilterTermsAnd( $term, $value){
+        $this->filtersTerms[] = [$term , $value];
+        return ($this);
+
+    }
     /**
      * @return array
      */
@@ -253,6 +261,8 @@ class BaseEs extends \ArrayIterator{
         $params = array_merge($this->getPaginatorParams(), $this->query_dsl);
         $data = $this->es->search( $params )['hits'];
         
+        //dump($params);
+        //exit;
         $this->data = $this->transformData($data['hits'] , $data['total']);
         return $this;
     }
@@ -356,35 +366,61 @@ class BaseEs extends \ArrayIterator{
      */
     private function _builderFilterBoolAnd(){
 
-        if(!isset($this->query_dsl['body']) OR !$this->filters) return($this);
-        $terms = [];
-        foreach($this->filters as $row){
-                list($label, $value) = $row;
-            if(!isset($terms[$label]))
-                $terms[$label] = [];
-            $terms[$label][] = $value;
-
-        }
+        if(!isset($this->query_dsl['body']) OR (!$this->filters  && !$this->filtersTerms)) return($this);
+        $terms = $this->getFilterTerms();
+        $multTerms = $this->getMultiTerms();
         $query = $this->query_dsl['body']['query'];
         $filtered = [
             'filtered'=>[
                  'query' => $query,
                  'filter'=>[
+                     'bool'=>[
+                     'should'=>[
                      'and'=>
                          [
-                              'filters'=>
-                                  [
-                                    ["terms" => $terms]
-                                  ]
+                              'filters'=> []
                          ]
+                       ]
+                     ]
                  ]
 
             ]
         ];
+         $arrayFiltered = $filtered['filtered']['filter']['bool']['should']['and']['filters'];
+        
+        if($terms)
+            $arrayFiltered = array_merge($arrayFiltered, $terms);
+
+         if($multTerms)
+            $arrayFiltered = array_merge($arrayFiltered, $multTerms);   
+        
+        $filtered['filtered']['filter']['bool']['should']['and']['filters'] = $arrayFiltered;        
         $this->query_dsl['body']['query'] = $filtered;
         //dump($this->query_dsl);
         //exit;
         return ($this);
+    }
+
+    private function getMultiTerms(){
+        $terms = [];
+        foreach($this->filtersTerms as $row){
+                list($label, $value) = $row;
+              if(!isset($terms[$label]))
+                $terms[$label] = [];
+            $terms[$label][] = $value;
+
+        }
+        return [['terms'=> $terms]];
+    }
+
+    private function getFilterTerms(){
+        $terms = [];
+        foreach($this->filters as $row){
+                list($label, $value) = $row;
+            $terms[] = ['term'=>[$label=> mb_strtolower($value)]];
+
+        }
+        return $terms;
     }
 
     /**
