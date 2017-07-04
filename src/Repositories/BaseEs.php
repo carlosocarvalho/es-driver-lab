@@ -460,7 +460,15 @@ class BaseEs extends \ArrayIterator{
         return $this->transformData([$data]);
     }
 
-
+    /**
+     * alter document
+     *
+     * @param string $index
+     * @param string $type
+     * @param string $id
+     * @param array $data
+     * @return bool
+     */
     public function update($index, $type, $id , $data){
         $update = ['index' => $index, 'type'=> $type, 'id'=> $id, 'body'=> ['doc'=>$data]];
         return $this->es->update($update);

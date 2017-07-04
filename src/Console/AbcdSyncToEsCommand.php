@@ -34,21 +34,21 @@ class AbcdSyncToEsCommand  extends Command{
               ->setDescription('Re-import all registers for elastic search')
               ->addOption(
                   'reset',
-                  null,
+                  'e',
                   InputOption::VALUE_OPTIONAL,
                   'force reset all data',
                   false
               )
               ->addOption(
                   'no-index',
-                  'ni',
+                  'i',
                   InputOption::VALUE_OPTIONAL,
                   'No force all delete all indices',
                   false
               )
               ->addOption(
                   'no-data',
-                  'nd',
+                  null,
                   InputOption::VALUE_OPTIONAL,
                   'No create data',
                   false
@@ -62,12 +62,27 @@ class AbcdSyncToEsCommand  extends Command{
               )
               ->addOption(
                   'filename',
-                  'fi',
+                  'f',
                   InputOption::VALUE_OPTIONAL,
                   'Set file for import',
                   false
               )
+              ->addOption(
+                  'limit',
+                  'l',
+                  InputOption::VALUE_OPTIONAL,
+                  'Set limt for import bulk data',
+                  2000
+              )
               
+               ->addOption(
+                  'yes',
+                  'y',
+                  InputOption::VALUE_OPTIONAL,
+                  'Set yes for restore all databases  use -y true',
+                  false
+                  
+              )
                ;
           
      }
@@ -78,7 +93,7 @@ class AbcdSyncToEsCommand  extends Command{
           
           $io = new SymfonyStyle($input, $output);
           $this->logger =  new Logger('logger_up');
-          $this->logger->pushHandler(new StreamHandler( BASE_APP .'/logs/es/'.date('Y-m-d').'_notice.log', logger::NOTICE ));
+          $this->logger->pushHandler(new StreamHandler( BASE_APP .'/logs/es/'.date('Y-m-d').'_notice.log', logger::NOTICE ) );
           $this->logger->pushHandler(new StreamHandler( BASE_APP .'/logs/es/'.date('Y-m-d').'_critical.log', logger::CRITICAL ));
           //$this->logger->pushHandler(new StreamHandler( BASE_APP .'/logs/es/'.date('Y-m-d').'_error.log', logger::ERROR ));
           //$this->logger->pushHandler(new StreamHandler( BASE_APP .'/logs/es/'.date('Y-m-d').'_info.log', logger::INFO ));
@@ -88,69 +103,54 @@ class AbcdSyncToEsCommand  extends Command{
           $forceDelete = (bool) $input->getOption('reset');
           $createIndex = (bool) !$input->getOption('no-index');
 
+          $limit = $input->getOption('limit');
 
-          $filename = $input->getOption('filename') ? $input->getOption('filename') : 'demo.txt' ;
+
+          $filename = $input->getOption('filename');
+
           $path = $input->getOption('path') ? $input->getOption('path') : BASE_APP ;
           $climate = new \League\CLImate\CLImate;  
-          $this->createAllIndices($forceDelete, $createIndex, $io );
+          $this->createAllIndices($forceDelete, $createIndex, $io, $input );
           
           $restore = $this->es; 
           //running each data for file
           $i = 0; 
           $output->writeln('Filename read ' . $filename); 
-          
+          dump( $filename );
           $this->logger->addNotice('Stared up ' . $filename);
          
           if( ! $input->getOption('no-data')){
 
               $params = ['body' => []];
-                    $this->es->execute( $path , $filename, function($row) use ($output , &$restore, $climate, &$i, & $params) {
-
+                    $this->es->execute( $path , $filename, function($row) use ($output , &$restore, $climate, &$i, & $params, $limit) {
+                           
                             if(!$row) return;
+                           
                             $data = $row->toArray();
-
-                           if( $this->validateArgumentsFor($data)  ) {
-
-
+                            
+                            if( $this->validateArgumentsFor($data)  ) {
                                $params['body'][] = [
                                    'index' => [
                                        '_index' => $data['index'],
                                        '_type' => $data['type'],
-
                                    ]
                                ];
                                $params['body'][] = $data['body'];
-
-                               // Every 1000 documents stop and send the bulk request
-                               if ($i > 0 && $i % 1000 == 0) {
+                               if ($i > 0 && $i % $limit == 0) {
                                     dump($i);
                                    $responses = $restore->bulk($params);
-
-                                   // erase the old bulk request
                                    $params = ['body' => []];
-
-                                   // unset the bulk response when you are done to save memory
                                    unset($responses);
 
                                }
                                $i+=1;
-                               //$output->writeln($data['index'].'/'. $data['type'].'/'.$data['body']['777'] );
-
-
                            }
-                            
-                            
-                            //usleep(30000);
+
                         });
-
-
-                        //if($i > 0)
-                       // $io->success( $i .' registers indexeds');
             }
-
             $this->logger->addNotice('Finish up ' . $filename);
-
              if(count($params ['body']) > 0){
+                 dump($i);
                  $restore->bulk($params);
              }
             $output->writeln('finish');  
@@ -159,10 +159,22 @@ class AbcdSyncToEsCommand  extends Command{
     }
 
 
-    private function  createAllIndices( $forceDelete , $createIndex, $io){
+    private function createAllIndices( $forceDelete , $createIndex, $io, $input){
                  
+                 $yes = (bool) $input->getOption('yes');
+
+                if ( $yes  )
+                {
+                      if($createIndex && $forceDelete )
+                              $this->es->createIndex( $forceDelete );
+                      if ($createIndex && ! $forceDelete )
+                              $this->es->createIndex( $forceDelete );        
+                    return;
+                }
+
             if( $createIndex !== false){
                  if($forceDelete !== false){
+                     
                     if($io->confirm('Deseja apagar todos os dados ?')){
                         $this->es->createIndex( $forceDelete );
                         $io->success('indices recreating');

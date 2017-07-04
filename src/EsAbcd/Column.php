@@ -1,92 +1,109 @@
 <?php 
 
-
 namespace Modalnetworks\EsModal\EsAbcd;
 use Modalnetworks\EsModal\Config;
 
-class Column{
+class Column  {
 
-    protected $fieldsNotApplyIndex = [];
-    protected $fieldsTimeStamps = ['777'];
-    
-    protected $column_separator = '|';
-
-    protected $data;
-
-    protected $columns = [];
-   
-    public function __construct( $data ) {
-          
-        $mapping = Config::get('elasticmapping');
+      protected $separator = '|';
+     
+      /**
+       * key name
+       * @var string
+       */  
+      private $name =  null;
       
-        $this->fieldsNotApplyIndex = $mapping['fields_string'];
+      /**
+       * value data 
+       *
+       * @var string
+       */
+      private $value;
 
-         $this->getColumnsFromLine($data);
-        
-          $this->columns = $mapping['fields_in'];
-        
+      /**
+       * data 
+       *
+       * @var string
+       */ 
+      private $str;
+      
+      public function __construct( $str = null )
+      {       
+             if ( $str )  
+             $this->str = trim($str, $this->separator);
+             //$this->name = trim($this->str, PHP_EOL) != "" ? trim($this->str, PHP_EOL) : null ;
+             if ( preg_match('#\\'.$this->separator.'#', $this->str )) 
+                 list( $this->name, $this->value) = explode($this->separator, $this->str);  
+              
+      }
+      /**
+       * return custom value
+       *
+       * @return string|object|array
+       */
+      public function getValue(){
+             return $this->buildFieldValue();
+      }
+      
+      /**
+       * Undocumented function
+       *
+       * @param [type] $value
+       * @return void
+       */
+      public function setValue($value){
+          $this->value = $value;
+          return $this;
 
+      }
+      /**
+       * add customName
+       *
+       * @param [type] $name
+       * @return void
+       */
+      public function setName($name){
+          $this->name = $name;
+          return $this;
+      }
 
-        
-    }
-    
-    public function data(){
-       return $this->data;
-    }
+      /**
+       * return key name 
+       *
+       * @return string
+       */
+      public function getName(){
+             return $this->name;
+      }  
+      private function buildFieldValue(){
+            return  $this->validateValueField($this->name, $this->value);
+      }
+      /**
+       * 
+       * @return void
+       */   
+      private function validateValueField($field,$value){
+            $config = Config::get('elasticmapping');
+            $callbacks = $config['callbacks'];
+            if( ! $callbacks OR !isset($callbacks[$field])) return $value;
+               return $this->validateCallbackColumn($callbacks[$field], $value);    
+      }
 
+      /**
+       * callback execute
+       *
+       * @param array $callbacks
+       * @param string $value
+       * @return string|array
+       */
+      private function validateCallbackColumn($callbacks , $value){
+                if ( !$callbacks ) return $value;
+                foreach($callbacks as $callable){
+                       $value =  call_user_func($callable, $value);
+                }   
+                return $value;
+      }
 
-    private function getColumnsFromLine($row){
-          $data = [];
-          //$row = utf8_encode($row);
-          
-          foreach ($row as  $value) {
-                    if(preg_match('#\|#', $value)){
-                        $ns = explode('|',$value);
-                        $key = trim($ns['0']);
-                        $ivalue = trim($ns['1']);
-                        if(empty($key) OR ($this->columns && !in_array($key, $this->columns))) continue;
-                        if(in_array($key, $this->fieldsTimeStamps))
-                          $ivalue = $this->replaceValidDate($ivalue);
-                          $data[$key] =  $ivalue ;//mb_convert_encoding(utf$ivalue,'UTF-8');
-                        if(!in_array($key, $this->fieldsNotApplyIndex ,true)){
-                            $arrayDataOnSave = array_map('trim', explode(';', $ivalue));
-                            $data[$key] = $this->clearArrayData($arrayDataOnSave); /*array_filter($arrayDataOnSave, function($row){
-                                   $row = trim($row);
-                                   if(!empty($row)) return $row;
-                            });*/
-                        }
-
-                    }
-
-                }
-
-             $this->data = $data;    
-
-    }
-
-
-    private function clearArrayData($data){
-
-
-        if(! $data OR !is_array($data)) return $data;
-        $new_data = [];
-        foreach($data as $key => $value){
-            $value = trim($value);
-            if(!empty($value))
-                   $new_data[] = $value;
-
-
-        }
-        return $new_data;
-    }
-
-
-   private function replaceValidDate($date , $key = null){
-       $date = preg_replace('/[^0-9]+/i','', $date);
-       if(preg_match('#\d#', $date)){
-           return substr($date,0, 8);
-       }
-       return str_pad(rand(2,5),8,'0', STR_PAD_LEFT);
-
-    }
+      
+      
 }

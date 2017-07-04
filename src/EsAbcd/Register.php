@@ -2,7 +2,7 @@
 
 namespace Modalnetworks\EsModal\EsAbcd;
 
-use Modalnetworks\EsModal\EsAbcd\Column;
+use Modalnetworks\EsModal\EsAbcd\Row;
 use \Everon\Component\Collection\Collection;
 //register
 class Register{
@@ -12,20 +12,20 @@ class Register{
       
       public function __construct( $data  ){
              $this->data = $data;
+            // return $this->build();
       }
 
-     public function build(){
+      function build(){
           $row = $this->data;
           if(!$row) return [];  
 
-          $row = trim($row, '\n');
+          $row = trim($row, PHP_EOL);
           $row = trim($row, $this->column_separator); 
           $line = explode( $this->column_separator , $row);
             
             if($line){
-               $register = (new Column($line))->data();
+               $register = (new Row($line))->data();
                 if($register){
-                    //$register = $register->toArray();
                     $index = extractArgument($register, 'index');
                     $type = extractArgument($register, 'type');
                     return  new Collection([
@@ -33,8 +33,6 @@ class Register{
                         'type'=>strtolower(trim($type)),
                         'body'=> $register
                         ]);
-
-
                 }
                
 

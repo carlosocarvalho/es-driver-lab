@@ -30,3 +30,38 @@ function array_merge_recursive_one($paArray1, $paArray2)
     }
     return $paArray1;
 }
+
+
+if ( ! function_exists('toArrayABCD')){
+
+    /**
+     * transform string  to array
+     *
+     * @param string $str
+     * @return array
+     */
+    function toArrayABCD($str){
+       $data = [];
+       $separator = ';';
+       $str = trim($str, $separator);
+       array_filter( array_map('trim', preg_split("#{$separator}#", $str) ) ,function($row) use ( & $data) {
+            if( mb_strlen($row) > 0 )
+                $data[] = $row;
+        });
+       return $data;
+    }
+}
+
+
+if ( ! function_exists('validateToDateABCD')){
+    $counter = 0; 
+    function validateToDateABCD( $str){
+        global $counter;
+        $str = preg_replace('/[^0-9]+/i','', $str);
+       if(preg_match('#\d#', $str)){
+           return substr($str,0, 8);
+       }
+       $counter +=1;
+       return str_pad($counter,7,'0', STR_PAD_LEFT);
+    }
+}

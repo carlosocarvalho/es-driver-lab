@@ -40,7 +40,6 @@ class UpFile {
            $data = (new \Modalnetworks\EsModal\EsAbcd\Register($row, $i))->build();
            if( is_callable ($callback) )
                  call_user_func($callback,$data, $i);
-
              $i+=1;     
       }
 
