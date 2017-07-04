@@ -6,9 +6,12 @@ if(! function_exists('extractArgument')){
     
     function extractArgument( & $data, $arg){
      
-     if (is_object($data) === true) { $data = (array) $data; }
-         if (isset($data[$arg]) === true) {
+     if ( is_object($data) === true) { $data = (array) $data; }
+         if ( is_array($data)  && isset($data[$arg]) === true) {
+               
                 $val = $data[$arg];
+                
+                
                 unset($data[$arg]);
                 return $val;
        }
